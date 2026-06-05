@@ -4,93 +4,99 @@ import json
 import os
 
 # ==========================================
-# 1. 宇宙背景の完全復活 ＆ マトリックス・サイバーCSS
+# 1. 宇宙背景・流れ星の完全復活 ＆ 独立メッセージ演出
 # ==========================================
 st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
-cyber_matrix_space_html = """
+space_matrix_hybrid_html = """
 <style>
-    /* --- 1. 元の美しい宇宙・スペース背景の完全復活 --- */
+    /* --------------------------------------------------
+       [完全復活] 宇宙空間・星空・流れ星の背景システム
+    -------------------------------------------------- */
     .stApp {
-        /* 深宇宙のディープブルーグラデーション */
-        background: radial-gradient(ellipse at center, #0a1128 0%, #020617 100%) !important;
+        background: radial-gradient(ellipse at bottom, #060d1f 0%, #010206 100%) !important;
         color: #ffffff !important;
         font-family: 'Courier New', Courier, monospace;
         overflow-x: hidden;
     }
 
-    /* 微細な星空エフェクトの複写 */
+    /* 背景にきらめく星空レイヤー */
     .stApp::before {
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             radial-gradient(white, rgba(255,255,255,.2) 1px, transparent 40px),
-            radial-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.05) 1px, transparent 30px);
-        background-size: 350px 350px, 200px 200px; 
-        opacity: 0.25; 
-        z-index: 0; 
-        pointer-events: none;
+            radial-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.08) 1px, transparent 30px);
+        background-size: 300px 300px, 200px 200px; 
+        opacity: 0.3; z-index: 0; pointer-events: none;
     }
 
-    /* --- 2. メッセージがマトリックス風に流れる起動演出（上部マトリックス・バナー） --- */
-    @keyframes matrix-stream-fade {
-        0% { opacity: 0; transform: scaleY(0); }
-        15% { opacity: 1; transform: scaleY(1); }
-        85% { opacity: 1; transform: scaleY(1); }
-        100% { opacity: 0; transform: scaleY(0); height: 0; margin-bottom: 0; padding: 0; visibility: hidden; }
+    /* 流れ星（シューティングスター）のアニメーション復活 */
+    @keyframes shooting-star {
+        0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; width: 0px; }
+        10% { width: 80px; opacity: 1; }
+        30% { transform: translateX(-300px) translateY(300px) rotate(-45deg); opacity: 0; width: 0px; }
+        100% { transform: translateX(-300px) translateY(300px) rotate(-45deg); opacity: 0; }
     }
-    @keyframes code-rain-scroll {
-        0% { background-position: 0% 0%; }
-        100% { background-position: 0% 100%; }
+    .space-meteor {
+        position: fixed; top: -10px; right: 20%; width: 2px; height: 2px;
+        background: linear-gradient(-45deg, #ffffff, rgba(0, 255, 255, 0));
+        filter: drop-shadow(0 0 6px #00ffaa); opacity: 0; z-index: 1; pointer-events: none;
+        animation: shooting-star 6s ease-in-out infinite;
     }
-    @keyframes message-glow {
-        0% { opacity: 0; letter-spacing: 4px; filter: blur(2px); }
-        20% { opacity: 1; letter-spacing: 8px; filter: blur(0px); text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41; }
-        80% { opacity: 1; letter-spacing: 10px; text-shadow: 0 0 12px #00ff41, 0 0 25px #00ff41; }
-        100% { opacity: 0; filter: blur(2px); }
-    }
-
-    /* 上部にマトリックスデジタル空間をコンパクトに展開 */
-    .matrix-top-booter {
-        position: relative;
-        width: 100%;
-        height: 100px;
-        background-color: rgba(0, 0, 0, 0.85);
-        border: 1px solid #00ff41;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: matrix-stream-fade 3.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-    }
-    
-    /* マトリックスコード雨のデジタル背景（CSS高速スクロール） */
-    .matrix-top-booter::before {
-        content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background-image: linear-gradient(180deg, rgba(0, 255, 65, 0.2) 0%, transparent 80%);
-        background-size: 100% 50px;
-        opacity: 0.7;
-        animation: code-rain-scroll 1s linear infinite;
+    .space-meteor-2 {
+        position: fixed; top: 10%; right: 50%; width: 2px; height: 2px;
+        background: linear-gradient(-45deg, #ffffff, rgba(255, 0, 255, 0));
+        filter: drop-shadow(0 0 6px #ff00ff); opacity: 0; z-index: 1; pointer-events: none;
+        animation: shooting-star 9s ease-in-out infinite;
+        animation-delay: 3s;
     }
 
-    /* 「信頼に感謝」のメッセージ発光 */
-    .matrix-boot-message {
-        position: relative;
+    /* 惑星エフェクト（背景オーブ） */
+    .space-planet-orb {
+        position: fixed; bottom: -10%; left: -5%; width: 350px; height: 350px;
+        background: radial-gradient(circle, rgba(0, 255, 170, 0.08) 0%, transparent 70%);
+        z-index: 0; pointer-events: none;
+    }
+
+    /* --------------------------------------------------
+       [独立制御] マトリックス風・起動メッセージ演出
+    -------------------------------------------------- */
+    @keyframes matrix-flash-gate {
+        0% { opacity: 1; visibility: visible; }
+        85% { opacity: 1; visibility: visible; }
+        100% { opacity: 0; visibility: hidden; }
+    }
+    @keyframes matrix-text-glow {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); filter: blur(4px); letter-spacing: 2px; }
+        20% { opacity: 1; filter: blur(0px); letter-spacing: 6px; text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 30px #00ffaa; }
+        80% { opacity: 1; transform: translate(-50%, -50%) scale(1.03); letter-spacing: 8px; text-shadow: 0 0 15px #00ff41, 0 0 30px #00ffaa; }
+        100% { opacity: 0; filter: blur(2px); transform: translate(-50%, -50%) scale(1.05); }
+    }
+
+    /* 背景を透過させ、既存の宇宙背景を隠さないスプラッシュレイヤー */
+    .matrix-overlay-gate {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(1, 3, 10, 0.65); /* 宇宙背景がうっすら透ける遮光シールド */
+        backdrop-filter: blur(2px);
+        z-index: 999999; pointer-events: none;
+        animation: matrix-flash-gate 2.5s steps(25, end) forwards;
+    }
+    .matrix-neon-text {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
         color: #ffffff;
         font-family: 'Noto Serif JP', 'Georgia', serif;
-        font-size: calc(18px + 1vw);
-        font-weight: bold;
-        white-space: nowrap;
-        z-index: 10;
-        animation: message-glow 3.2s ease-in-out forwards;
+        font-size: calc(22px + 1.8vw); font-weight: bold; white-space: nowrap;
+        animation: matrix-text-glow 2.4s ease-in-out forwards;
     }
 
-    /* --- 3. メインUIコンポーネントのサイバーデザイン --- */
+    /* --------------------------------------------------
+       サイバーUIコンポーネント（SpaceLabテーマ）
+    -------------------------------------------------- */
     .cyber-title-container {
-        text-align: center; padding: 18px 10px; margin-bottom: 25px; position: relative;
-        background: rgba(4, 10, 24, 0.85); border: 2px solid #00ffaa; border-radius: 8px;
-        box-shadow: 0 0 15px rgba(0, 255, 170, 0.25), inset 0 0 15px rgba(0, 255, 170, 0.1);
+        text-align: center; padding: 18px 10px; margin-bottom: 25px;
+        background: rgba(4, 10, 26, 0.85); border: 2px solid #00ffaa; border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 255, 170, 0.2), inset 0 0 15px rgba(0, 255, 170, 0.1);
     }
     .cyber-title {
         font-family: 'Impact', 'Arial Black', sans-serif;
@@ -105,12 +111,12 @@ cyber_matrix_space_html = """
     }
 
     h3 {
-        color: #00ffaa !important; text-shadow: 0 0 8px rgba(0,255,170,0.4); border-left: 4px solid #00ffaa;
+        color: #00ffaa !important; text-shadow: 0 0 8px rgba(0,255,170,0.3); border-left: 4px solid #00ffaa;
         padding-left: 10px; font-size: calc(15px + 0.8vw) !important; white-space: nowrap;
     }
     
     div[data-testid="stMetricLabel"] { color: #ffffff !important; font-weight: bold !important; text-shadow: 1px 1px 3px rgba(0,0,0,0.9) !important; }
-    div[data-testid="stMetricValue"] { color: #00ffaa !important; font-size: 2.2rem !important; text-shadow: 0 0 10px rgba(0, 255, 170, 0.4); }
+    div[data-testid="stMetricValue"] { color: #00ffaa !important; font-size: 2.2rem !important; text-shadow: 0 0 10px rgba(0, 255, 170, 0.3); }
 
     .stWidgetLabel, div[data-testid="stMarkdownContainer"] p, label, .stRadio p {
         color: #ffffff !important;
@@ -118,21 +124,25 @@ cyber_matrix_space_html = """
         font-weight: 600 !important;
     }
 
-    /* ウィジェット外枠コンテナ（透明感のあるサイバーネイビー） */
+    /* ウィジェットコンテナ（星空が透けるアクリルデザイン） */
     div[data-testid="stVerticalBlock"] {
-        background: rgba(5, 12, 28, 0.75) !important; border-radius: 10px; padding: 14px;
+        background: rgba(5, 12, 30, 0.75) !important; border-radius: 10px; padding: 14px;
         border: 1px solid rgba(0, 255, 170, 0.2);
     }
     .stAlert div { color: #ffffff !important; }
 </style>
 
-<div class="matrix-top-booter">
-    <div class="matrix-boot-message">信頼に感謝</div>
+<div class="space-meteor"></div>
+<div class="space-meteor-2"></div>
+<div class="space-planet-orb"></div>
+
+<div class="matrix-overlay-gate">
+    <div class="matrix-neon-text">信頼に感謝</div>
 </div>
 """
 
-# スタイリングと起動メッセージの射出
-st.markdown(cyber_matrix_space_html, unsafe_allow_html=True)
+# スタイリングと環境エフェクトのロード
+st.markdown(space_matrix_hybrid_html, unsafe_allow_html=True)
 
 # メインタイトル
 st.markdown("""
