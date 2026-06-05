@@ -4,7 +4,7 @@ import json
 import os
 
 # ==========================================
-# 1. 宇宙ベース(星空・流星・オービット惑星)カスタムCSS/HTML
+# 1. 宇宙ベース(高視認性サイバー)カスタムCSS/HTML
 # ==========================================
 st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
@@ -12,24 +12,23 @@ space_effects_html = """
 <style>
     /* 全体の背景を深い宇宙に設定 */
     .stApp {
-        background: radial-gradient(ellipse at bottom, #0c1020 0%, #030308 100%) !important;
-        color: #e0e0ff;
+        background: radial-gradient(ellipse at bottom, #070b19 0%, #020205 100%) !important;
+        color: #ffffff !important;
         font-family: 'Courier New', Courier, monospace;
         overflow-x: hidden;
     }
 
-    /* リアルな星空を生成する背景レイヤー */
+    /* 星空レイヤー（少し暗めにして文字を邪魔しないように調整） */
     .stApp::before {
         content: "";
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
-            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
-            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
-            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
-        background-size: 550px 550px, 350px 350px, 250px 250px;
-        background-position: 0 0, 40px 60px, 130px 270px;
-        opacity: 0.3;
+            radial-gradient(white, rgba(255,255,255,.2) 1.5px, transparent 40px),
+            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
+        background-size: 450px 450px, 250px 250px;
+        background-position: 0 0, 40px 60px;
+        opacity: 0.25;
         z-index: 0;
         pointer-events: none;
     }
@@ -53,120 +52,114 @@ space_effects_html = """
         pointer-events: none;
     }
 
-    /* --- 太陽系惑星オービットシステム (背景アニメーション) --- */
+    /* --- 太陽系惑星オービットシステム --- */
     @keyframes orbit-rotate {
         from { transform: translate(-50%, -50%) rotate(0deg); }
         to { transform: translate(-50%, -50%) rotate(360deg); }
     }
-
     .solar-system {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        width: 0px;
-        height: 0px;
-        z-index: 0;
-        pointer-events: none;
-        opacity: 0.25;
+        top: 50%; left: 50%; width: 0px; height: 0px;
+        z-index: 0; pointer-events: none; opacity: 0.15;
     }
-
     .sun-glow {
         position: absolute;
         width: 100px; height: 100px;
         background: radial-gradient(circle, rgba(255,150,0,0.3) 0%, transparent 70%);
         transform: translate(-50%, -50%);
     }
-
     .orbit {
         position: absolute;
         border: 1px dashed rgba(0, 255, 255, 0.15);
         border-radius: 50%;
         animation: orbit-rotate linear infinite;
     }
-    .planet {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-    }
-
+    .planet { position: absolute; top: 0; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
     .orbit-inner { width: 280px; height: 280px; animation-duration: 25s; }
     .planet-inner { width: 10px; height: 10px; background: #00bfff; box-shadow: 0 0 8px #00bfff; }
-
     .orbit-outer { width: 520px; height: 520px; animation-duration: 50s; }
     .planet-outer { width: 16px; height: 16px; background: #ffaa44; box-shadow: 0 0 10px #ffaa44; }
-    .planet-outer::after {
-        content: ""; position: absolute; top: 50%; left: 50%; width: 26px; height: 6px;
-        border: 2px solid rgba(255, 170, 68, 0.6); border-radius: 50%;
-        transform: translate(-50%, -50%) rotate(15deg);
-    }
 
-    /* --- タイトルエリアの1列絶対死守化 (レスポンシブ対応) --- */
+    /* --- 【重要】視認性最優先のUI調整 --- */
+    
+    /* タイトルコンテナ */
     .cyber-title-container {
         text-align: center;
         padding: 15px 10px;
         margin-bottom: 25px;
-        background: rgba(5, 5, 20, 0.7);
+        background: rgba(3, 4, 12, 0.85);
         border: 2px solid #00ffff;
         border-radius: 8px;
         box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 15px rgba(0, 255, 255, 0.2);
     }
     .cyber-title {
         font-family: 'Impact', 'Arial Black', sans-serif;
-        /* 画面幅に応じてフォントサイズが自動縮小するvw（Viewport Width）を採用 */
         font-size: calc(14px + 2.2vw) !important;
         color: #ffffff !important;
-        text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff;
+        text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
         letter-spacing: 1px;
         margin: 0 !important;
-        white-space: nowrap; /* 絶対に改行させない */
+        white-space: nowrap;
     }
     .cyber-subtitle {
-        font-size: calc(9px + 0.5vw);
-        color: #ff00ff;
-        text-shadow: 0 0 4px #ff00ff;
-        letter-spacing: 2px;
-        margin-top: 8px;
-        white-space: nowrap; /* 絶対に改行させない */
+        font-size: calc(9px + 0.5vw); color: #ff00ff;
+        text-shadow: 0 0 4px #ff00ff; letter-spacing: 2px; margin-top: 8px;
+        white-space: nowrap;
     }
     .cyber-credit {
-        font-size: calc(8px + 0.3vw);
-        color: #00ffaa;
-        text-shadow: 0 0 3px #00ffaa;
-        letter-spacing: 1px;
-        margin-top: 10px;
-        white-space: nowrap; /* 絶対に改行させない */
+        font-size: calc(8px + 0.3vw); color: #00ffaa;
+        text-shadow: 0 0 3px #00ffaa; letter-spacing: 1px; margin-top: 10px;
+        white-space: nowrap;
     }
 
-    /* セクションタイトルも改行させずスマホ向けに最適化 */
+    /* セクションヘッダー(紫ネオン) */
     h3 {
-        color: #ff00ff !important;
-        text-shadow: 0 0 8px #ff00ff;
-        border-left: 4px solid #ff00ff;
+        color: #ff55ff !important;
+        text-shadow: 0 0 8px #ff55ff;
+        border-left: 4px solid #ff55ff;
         padding-left: 10px;
         font-size: calc(16px + 1vw) !important;
         white-space: nowrap;
     }
     
-    div[data-testid="stMetricValue"] { color: #00ffaa !important; font-size: 2.3rem !important; text-shadow: 0 0 10px rgba(0, 255, 170, 0.6); }
-    div[data-testid="stMetricLabel"] { color: #8bb3ff !important; letter-spacing: 1px; }
-    
+    /* メトリクス（数値表示）のラベルを明るい白ベースに変更して視認性確保 */
+    div[data-testid="stMetricLabel"] {
+        color: #ffffff !important;
+        font-weight: bold !important;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.9) !important;
+        font-size: 1rem !important;
+    }
+    div[data-testid="stMetricValue"] {
+        color: #00ffaa !important;
+        font-size: 2.3rem !important;
+        text-shadow: 0 0 10px rgba(0, 255, 170, 0.6);
+    }
+
+    /* ラジオボタン・テキストラベルの文字色を「絶対的な白」に強制 */
+    .stWidgetLabel, div[data-testid="stMarkdownContainer"] p, label {
+        color: #ffffff !important;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 1), 0 0 2px rgba(0, 0, 0, 1) !important;
+        font-weight: 500 !important;
+    }
+
+    /* ウィジェット全体の背景を少し暗くして文字を浮かび上がらせる */
     div[data-testid="stVerticalBlock"] {
-        background: rgba(4, 5, 15, 0.4);
+        background: rgba(5, 8, 22, 0.75) !important;
         border-radius: 10px;
-        padding: 10px;
+        padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* インフォメーションボックスの文字も見やすく調整 */
+    .stAlert div {
+        color: #ffffff !important;
     }
 </style>
 
 <div class="solar-system">
     <div class="sun-glow"></div>
-    <div class="orbit orbit-inner">
-        <div class="planet planet-inner"></div>
-    </div>
-    <div class="orbit orbit-outer">
-        <div class="planet planet-outer"></div>
-    </div>
+    <div class="orbit orbit-inner"><div class="planet planet-inner"></div></div>
+    <div class="orbit orbit-outer"><div class="planet planet-outer"></div></div>
 </div>
 
 <div class="cyber-title-container">
