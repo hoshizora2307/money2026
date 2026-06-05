@@ -68,7 +68,7 @@ space_effects_html = """
         height: 0px;
         z-index: 0;
         pointer-events: none;
-        opacity: 0.25; /* コンテンツの邪魔をしないように透過 */
+        opacity: 0.25;
     }
 
     /* 中心：太陽光（バックグロー） */
@@ -115,7 +115,6 @@ space_effects_html = """
         background: #ffaa44;
         box-shadow: 0 0 10px #ffaa44;
     }
-    /* 土星の環のシミュレート */
     .planet-outer::after {
         content: "";
         position: absolute;
@@ -182,7 +181,7 @@ space_effects_html = """
 st.markdown(space_effects_html, unsafe_allow_html=True)
 
 # ==========================================
-# 2. データ管理ロジック
+# 2. データ管理ロジック (構文エラー修正済)
 # ==========================================
 DATA_FILE = "repayment_status.json"
 
@@ -200,4 +199,82 @@ def load_data():
 
 def save_data(data):
     with open(DATA_FILE, "w") as f:
-        json.dump(data, f
+        json.dump(data, f, indent=4)
+
+if 'db' not in st.session_state:
+    st.session_state.db = load_data()
+
+db = st.session_state.db
+
+# ==========================================
+# 3. メインUIコンテンツ
+# ==========================================
+col1, col2 = st.columns(2)
+with col1:
+    st.metric(label="☄️ INITIAL LOAN", value="¥701,000")
+with col2:
+    st.metric(label="🛰️ CURRENT REMAINING", value=f"¥{db['remaining_amount']:,}")
+
+st.write("---")
+st.subheader("🛸 Current Cycle Status")
+
+c1, c2 = st.columns(2)
+with c1:
+    if db["daichi_paid"]:
+        st.success("🟢 だいち：返済シグナル送信済")
+    else:
+        st.warning("⚪ だいち：未返済")
+
+with c2:
+    if db["shizu_confirmed"]:
+        st.success("🟢 しづ：受領確認サイン済")
+    else:
+        st.warning("⚪ しづ：未確認")
+
+# ==========================================
+# 4. 相互コントロールパネル
+# ==========================================
+st.write("---")
+st.subheader("🎛️ Mission Control Panel")
+
+user_role = st.radio("アクセス権限を選択してください：", ["小野田 だいち (借主)", "川端 しづ (貸主)"], horizontal=True)
+
+if user_role == "小野田 だいち (借主)":
+    st.info("💡 今月分の50,000円（＋利息）を振り込んだら、下のボタンを押してシグナルを送ってください。")
+    if st.button("🚀 返済を実行した（シグナル送信）", disabled=db["daichi_paid"]):
+        db["daichi_paid"] = True
+        save_data(db)
+        st.success("だいちさんからの返済シグナルをロックしました。しづさんの承認を待ちます。")
+        st.rerun()
+
+elif user_role == "川端 しづ (貸主)":
+    st.info("💡 だいちさんからの入金を確認したら、下のボタンを押してトランザクションを確定させてください。")
+    if not db["daichi_paid"]:
+        st.error("⚠️ だいちさんからの返済シグナルがまだ送信されていません。")
+    
+    if st.button("🛸 着金を確認した（承認サイン）", disabled=(not db["daichi_paid"] or db["shizu_confirmed"])):
+        db["shizu_confirmed"] = True
+        
+        repay_unit = 50000 
+        db["remaining_amount"] = max(0, db["remaining_amount"] - repay_unit)
+        
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        db["history"].append(f"{now_str} : ¥{repay_unit:,} の返済が承認されました。")
+        
+        db["daichi_paid"] = False
+        db["shizu_confirmed"] = False
+        
+        save_data(db)
+        st.success("トランザクション確定！残高が更新され、ログが記録されました。")
+        st.rerun()
+
+# ==========================================
+# 5. ログ・タイムライン履歴
+# ==========================================
+st.write("---")
+st.subheader("📜 Quantum Ledger (返済履歴)")
+if db["history"]:
+    for record in reversed(db["history"]):
+        st.code(record, language="markdown")
+else:
+    st.caption("通信記録なし（まだ承認された返済はありません）")
