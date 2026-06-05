@@ -102,10 +102,10 @@ space_effects_html = """
         transform: translate(-50%, -50%) rotate(15deg);
     }
 
-    /* --- UIデザインの強化 --- */
+    /* --- タイトルエリアの1列絶対死守化 (レスポンシブ対応) --- */
     .cyber-title-container {
         text-align: center;
-        padding: 20px 0;
+        padding: 15px 10px;
         margin-bottom: 25px;
         background: rgba(5, 5, 20, 0.7);
         border: 2px solid #00ffff;
@@ -114,21 +114,41 @@ space_effects_html = """
     }
     .cyber-title {
         font-family: 'Impact', 'Arial Black', sans-serif;
-        font-size: 22pt !important;
+        /* 画面幅に応じてフォントサイズが自動縮小するvw（Viewport Width）を採用 */
+        font-size: calc(14px + 2.2vw) !important;
         color: #ffffff !important;
         text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
         margin: 0 !important;
+        white-space: nowrap; /* 絶対に改行させない */
     }
     .cyber-subtitle {
-        font-size: 9pt; color: #ff00ff;
-        text-shadow: 0 0 4px #ff00ff; letter-spacing: 4px; margin-top: 5px;
+        font-size: calc(9px + 0.5vw);
+        color: #ff00ff;
+        text-shadow: 0 0 4px #ff00ff;
+        letter-spacing: 2px;
+        margin-top: 8px;
+        white-space: nowrap; /* 絶対に改行させない */
     }
     .cyber-credit {
-        font-size: 8pt; color: #00ffaa;
-        text-shadow: 0 0 3px #00ffaa; letter-spacing: 2px; margin-top: 10px;
+        font-size: calc(8px + 0.3vw);
+        color: #00ffaa;
+        text-shadow: 0 0 3px #00ffaa;
+        letter-spacing: 1px;
+        margin-top: 10px;
+        white-space: nowrap; /* 絶対に改行させない */
     }
-    h3 { color: #ff00ff !important; text-shadow: 0 0 8px #ff00ff; border-left: 4px solid #ff00ff; padding-left: 10px; }
+
+    /* セクションタイトルも改行させずスマホ向けに最適化 */
+    h3 {
+        color: #ff00ff !important;
+        text-shadow: 0 0 8px #ff00ff;
+        border-left: 4px solid #ff00ff;
+        padding-left: 10px;
+        font-size: calc(16px + 1vw) !important;
+        white-space: nowrap;
+    }
+    
     div[data-testid="stMetricValue"] { color: #00ffaa !important; font-size: 2.3rem !important; text-shadow: 0 0 10px rgba(0, 255, 170, 0.6); }
     div[data-testid="stMetricLabel"] { color: #8bb3ff !important; letter-spacing: 1px; }
     
