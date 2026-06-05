@@ -4,47 +4,141 @@ import json
 import os
 
 # ==========================================
-# 1. 宇宙ベース（近未来的）UIのカスタムCSS
+# 1. 宇宙ベース(星空・流れ星・サイバー)カスタムCSS/HTML
 # ==========================================
 st.set_page_config(page_title="SpaceLab Repayment Core", page_icon="🚀", layout="centered")
 
-space_css = """
+space_effects_html = """
 <style>
-    /* 全体の背景とテキストカラー（ディープスペース） */
+    /* 全体の背景を深い宇宙に設定 */
     .stApp {
-        background-color: #03030d;
+        background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%) !important;
         color: #e0e0ff;
         font-family: 'Courier New', Courier, monospace;
+        overflow-x: hidden;
+    }
+
+    /* リアルな星空を生成する背景レイヤー */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+        background-size: 550px 550px, 350px 350px, 250px 250px;
+        background-position: 0 0, 40px 60px, 130px 270px;
+        opacity: 0.4;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    /* 定期的に流れる「流れ星(Shooting Star)」のアニメーション */
+    @keyframes shooting-star {
+        0% {
+            transform: translateX(0) translateY(0) rotate(-45deg) scale(0);
+            opacity: 0;
+        }
+        5% {
+            opacity: 1;
+            transform: translateX(-100px) translateY(100px) rotate(-45deg) scale(1);
+        }
+        20% {
+            transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(0);
+            opacity: 0;
+        }
+        100% {
+            transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(0);
+            opacity: 0;
+        }
+    }
+
+    /* 流れ星本体のエフェクト */
+    .stApp::after {
+        content: "";
+        position: fixed;
+        top: 10%;
+        right: -10%;
+        width: 120px;
+        height: 2px;
+        background: linear-gradient(-45deg, #00ffff, rgba(0, 0, 0, 0));
+        filter: drop-shadow(0 0 6px #00ffff);
+        opacity: 0;
+        animation: shooting-star 8s linear infinite;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    /* タイトルの近未来的ネオンサイバーデザイン */
+    .cyber-title-container {
+        text-align: center;
+        padding: 20px 0;
+        margin-bottom: 25px;
+        background: rgba(5, 5, 15, 0.6);
+        border: 2px solid #00ffff;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 15px rgba(0, 255, 255, 0.2);
+    }
+    .cyber-title {
+        font-family: 'Impact', 'Arial Black', sans-serif;
+        font-size: 24pt !important;
+        color: #ffffff !important;
+        text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
+        letter-spacing: 4px;
+        margin: 0 !important;
+        text-transform: uppercase;
+    }
+    .cyber-subtitle {
+        font-size: 9pt;
+        color: #ff00ff;
+        text-shadow: 0 0 4px #ff00ff;
+        letter-spacing: 6px;
+        margin-top: 5px;
+    }
+    /* 製作者クレジットのスタイリング */
+    .cyber-credit {
+        font-size: 8pt;
+        color: #00ffaa;
+        text-shadow: 0 0 3px #00ffaa;
+        letter-spacing: 2px;
+        margin-top: 10px;
+        opacity: 0.8;
     }
     
-    /* タイトルとヘッダーのネオンエフェクト */
-    h1 {
-        color: #00ffff !important;
-        text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
-        text-align: center;
-        letter-spacing: 2px;
-    }
+    /* サブヘッダーの強化 */
     h3 {
         color: #ff00ff !important;
-        text-shadow: 0 0 5px #ff00ff;
+        text-shadow: 0 0 8px #ff00ff;
+        border-left: 4px solid #ff00ff;
+        padding-left: 10px;
     }
     
-    /* サイバーパンク風メトリクス（残高表示など） */
+    /* サイバーパンク風メトリクス */
     div[data-testid="stMetricValue"] {
         color: #00ffaa !important;
-        font-size: 2.5rem !important;
-        text-shadow: 0 0 8px #00ffaa;
+        font-size: 2.3rem !important;
+        text-shadow: 0 0 10px rgba(0, 255, 170, 0.6);
+        font-family: 'Courier New', monospace;
+    }
+    div[data-testid="stMetricLabel"] {
+        color: #8bb3ff !important;
+        letter-spacing: 1px;
     }
     
-    /* ステータスボックスの宇宙的カスタマイズ */
-    .stAlert {
-        background-color: #0a0a23 !important;
-        border: 1px solid #00ffff !important;
-        color: #00ffff !important;
+    /* 各種ボックスの中身が背景の邪魔をしないよう透過調整 */
+    .stAlert, div[data-testid="stBlock"] {
+        z-index: 1;
     }
 </style>
+
+<div class="cyber-title-container">
+    <div class="cyber-title">⚡ REPAYMENT CORE ⚡</div>
+    <div class="cyber-subtitle">SYSTEM VER 2.06 / SPICELAB NAVIGATION</div>
+    <div class="cyber-credit">BY HOSHIZORA2307 SOFTWARE SYSTEMS</div>
+</div>
 """
-st.markdown(space_css, unsafe_allow_html=True)
+st.markdown(space_effects_html, unsafe_allow_html=True)
 
 # ==========================================
 # 2. データ管理ロジック（簡易ファイルモック）
@@ -67,7 +161,6 @@ def save_data(data):
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
-# データの初期化
 if 'db' not in st.session_state:
     st.session_state.db = load_data()
 
@@ -76,10 +169,7 @@ db = st.session_state.db
 # ==========================================
 # 3. メインUIコンテンツ
 # ==========================================
-st.title("🌌 REPAYMENT MANAGEMENT SYSTEM")
-st.write("---")
-
-# 残高・ステータス表示（コックピット風）
+# コックピットカウンター
 col1, col2 = st.columns(2)
 with col1:
     st.metric(label="☄️ INITIAL LOAN", value="¥701,000")
@@ -91,7 +181,6 @@ st.write("---")
 # 現在の返済サイクル（今月の状況）
 st.subheader("🛸 Current Cycle Status")
 
-# 相互ロック判定のインジケーター
 c1, c2 = st.columns(2)
 with c1:
     if db["daichi_paid"]:
@@ -111,7 +200,6 @@ with c2:
 st.write("---")
 st.subheader("🎛️ Mission Control Panel")
 
-# ユーザー切り替え（iPhone等からのアクセスを想定し簡易エミュレート）
 user_role = st.radio("アクセス権限を選択してください：", ["小野田 だいち (借主)", "川端 しづ (貸主)"], horizontal=True)
 
 if user_role == "小野田 だいち (借主)":
@@ -130,16 +218,12 @@ elif user_role == "川端 しづ (貸主)":
     if st.button("🛸 着金を確認した（承認サイン）", disabled=(not db["daichi_paid"] or db["shizu_confirmed"])):
         db["shizu_confirmed"] = True
         
-        # 両者のボタンが押されたので、ここで初めて残高を減らす（5万円マイナス）
-        # ※投資収益等での増額返済に対応する場合は、金額を入力可能にするアレンジも可能です。
         repay_unit = 50000 
         db["remaining_amount"] = max(0, db["remaining_amount"] - repay_unit)
         
-        # 履歴への追加
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         db["history"].append(f"{now_str} : ¥{repay_unit:,} の返済が承認されました。")
         
-        # 次回サイクルのためにフラグをリセット
         db["daichi_paid"] = False
         db["shizu_confirmed"] = False
         
