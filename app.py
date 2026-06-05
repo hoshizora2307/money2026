@@ -4,14 +4,14 @@ import json
 import os
 
 # ==========================================
-# 1. 宇宙背景・スペースシバイヌ ＆ 独立メッセージ演出
+# 1. 満天の流星群 ＆ 完全CSSシバイヌマスコット ＆ メッセージ
 # ==========================================
 st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
-space_shiba_hybrid_html = """
+space_max_meteors_html = """
 <style>
     /* --------------------------------------------------
-       [完全復活] 宇宙空間・星空・流れ星の背景システム
+       [超強化] 画面全体の至る所に降り注ぐ流星群システム
     -------------------------------------------------- */
     .stApp {
         background: radial-gradient(ellipse at bottom, #060d1f 0%, #010206 100%) !important;
@@ -20,99 +20,96 @@ space_shiba_hybrid_html = """
         overflow-x: hidden;
     }
 
-    /* 背景にきらめく星空レイヤー */
+    /* 基本の星空 */
     .stApp::before {
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             radial-gradient(white, rgba(255,255,255,.2) 1px, transparent 40px),
             radial-gradient(rgba(255,255,255,0.15), rgba(255,255,255,0.08) 1px, transparent 30px);
-        background-size: 300px 300px, 200px 200px; 
-        opacity: 0.3; z-index: 0; pointer-events: none;
+        background-size: 250px 250px, 150px 150px; 
+        opacity: 0.35; z-index: 0; pointer-events: none;
     }
 
-    /* 流れ星（シューティングスター）のアニメーション */
-    @keyframes shooting-star {
-        0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; width: 0px; }
-        10% { width: 80px; opacity: 1; }
-        30% { transform: translateX(-300px) translateY(300px) rotate(-45deg); opacity: 0; width: 0px; }
-        100% { transform: translateX(-300px) translateY(300px) rotate(-45deg); opacity: 0; }
-    }
-    .space-meteor {
-        position: fixed; top: -10px; right: 20%; width: 2px; height: 2px;
-        background: linear-gradient(-45deg, #ffffff, rgba(0, 255, 255, 0));
-        filter: drop-shadow(0 0 6px #00ffaa); opacity: 0; z-index: 1; pointer-events: none;
-        animation: shooting-star 6s ease-in-out infinite;
-    }
-    .space-meteor-2 {
-        position: fixed; top: 10%; right: 50%; width: 2px; height: 2px;
-        background: linear-gradient(-45deg, #ffffff, rgba(255, 0, 255, 0));
-        filter: drop-shadow(0 0 6px #ff00ff); opacity: 0; z-index: 1; pointer-events: none;
-        animation: shooting-star 9s ease-in-out infinite;
-        animation-delay: 3s;
+    /* 流れ星のアニメーション共通設計 */
+    @keyframes super-meteor {
+        0% { transform: translateX(0) translateY(0) rotate(-40deg); opacity: 0; width: 0px; }
+        5% { opacity: 1; width: 100px; }
+        20% { transform: translateX(-400px) translateY(400px) rotate(-40deg); opacity: 0; width: 0px; }
+        100% { transform: translateX(-400px) translateY(400px) rotate(-40deg); opacity: 0; }
     }
 
-    /* 惑星エフェクト（背景オーブ） */
-    .space-planet-orb {
-        position: fixed; bottom: -10%; left: -5%; width: 350px; height: 350px;
-        background: radial-gradient(circle, rgba(0, 255, 170, 0.08) 0%, transparent 70%);
-        z-index: 0; pointer-events: none;
+    /* 至る所に配置する流れ星コンポーネント群 */
+    .meteor {
+        position: fixed; width: 2px; height: 2px; opacity: 0; z-index: 1; pointer-events: none;
+        animation: super-meteor infinite ease-in-out;
     }
+    
+    /* 位置・タイミング・速度の分散バラバラ配置 */
+    .m1 { top: -20px; right: 10%; background: linear-gradient(-40deg, #ffffff, transparent); filter: drop-shadow(0 0 6px #00ffaa); animation-duration: 5s; animation-delay: 0s; }
+    .m2 { top: -20px; right: 35%; background: linear-gradient(-40deg, #ffffff, transparent); filter: drop-shadow(0 0 6px #ff00ff); animation-duration: 7s; animation-delay: 2s; }
+    .m3 { top: 10%; right: 5%; background: linear-gradient(-40deg, #ffffff, transparent); filter: drop-shadow(0 0 5px #00ffff); animation-duration: 6s; animation-delay: 4s; }
+    .m4 { top: -20px; right: 60%; background: linear-gradient(-40deg, #ffffff, transparent); filter: drop-shadow(0 0 8px #ffffff); animation-duration: 8s; animation-delay: 1s; }
+    .m5 { top: 20%; right: 40%; background: linear-gradient(-40deg, #ffffff, transparent); filter: drop-shadow(0 0 6px #00ff41); animation-duration: 4s; animation-delay: 3s; }
+    .m6 { top: -20px; right: 80%; background: linear-gradient(-40deg, #ffffff, transparent); filter: drop-shadow(0 0 6px #ffaa00); animation-duration: 9s; animation-delay: 5.5s; }
+    .m7 { top: 30%; right: 20%; background: linear-gradient(-40deg, #ffffff, transparent); filter: drop-shadow(0 0 5px #00ffaa); animation-duration: 6.5s; animation-delay: 1.5s; }
 
     /* --------------------------------------------------
-       [新機能] 宇宙を旅する「スペースシバイヌ」システム
+       [100%確実] CSSネイティブ造形・スペースシバイヌ
     -------------------------------------------------- */
-    @keyframes shiba-floating {
-        0% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-15px) rotate(3deg); }
-        100% { transform: translateY(0px) rotate(0deg); }
-    }
-    @keyframes shiba-spin {
-        0% { transform: rotate(0deg); }
-        85% { transform: rotate(0deg); }
-        90% { transform: rotate(360deg); } /* 時々くるんと1回転 */
-        100% { transform: rotate(360deg); }
+    @keyframes shiba-space-float {
+        0% { transform: translateY(0px) rotate(-5deg); }
+        50% { transform: translateY(-20px) rotate(8deg); }
+        100% { transform: translateY(0px) rotate(-5deg); }
     }
 
-    .space-shiba-container {
-        position: fixed;
-        bottom: 40px;
-        right: 25px;
-        width: 75px;
-        height: 75px;
-        z-index: 999;
-        pointer-events: auto; /* タップで少し反応できるように */
-        animation: shiba-floating 4s ease-in-out infinite;
+    .shiba-space-box {
+        position: fixed; bottom: 50px; right: 30px; width: 70px; height: 70px;
+        z-index: 9999; pointer-events: none;
+        animation: shiba-space-float 4.5s ease-in-out infinite;
     }
 
-    /* かわいい絵文字シバイヌをヘルメット（バブル）で包む */
-    .shiba-avatar {
-        width: 100%;
-        height: 100%;
-        font-size: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,255,255,0.05) 60%, transparent 100%);
-        border: 2px solid rgba(0, 255, 170, 0.4);
-        border-radius: 50%;
-        box-shadow: 0 0 15px rgba(0, 255, 170, 0.3), inset 0 0 10px rgba(255,255,255,0.2);
-        backdrop-filter: blur(1px);
-        position: relative;
-        animation: shiba-spin 14s ease-in-out infinite;
+    /* 宇宙服のバブルヘルメット */
+    .shiba-helmet-bubble {
+        width: 100%; height: 100%;
+        background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(0,255,170,0.08) 70%, transparent 100%);
+        border: 2px solid rgba(0, 255, 170, 0.5); border-radius: 50%;
+        box-shadow: 0 0 15px rgba(0, 255, 170, 0.4), inset 0 0 10px rgba(255,255,255,0.3);
+        display: flex; align-items: center; justify-content: center; position: relative;
     }
 
-    /* 宇宙服の無線風の吹き出し（たまに寂しくないように） */
-    .shiba-avatar::after {
-        content: "🐾";
-        position: absolute;
-        top: -10px;
-        left: -5px;
-        font-size: 16px;
-        background: rgba(4, 10, 26, 0.8);
-        border: 1px solid #00ffaa;
-        border-radius: 50%;
-        padding: 2px;
-        box-shadow: 0 0 5px #00ffaa;
+    /* CSSで作る柴犬の顔・体構造 */
+    .css-shiba-face {
+        position: relative; width: 36px; height: 32px;
+        background: #e68a00; /* 柴犬オレンジ */
+        border-radius: 20px 20px 16px 16px;
+    }
+    /* 白いマズル（泥棒ひげエリア） */
+    .css-shiba-face::before {
+        content: ""; position: absolute; bottom: 0; left: 4px; width: 28px; height: 14px;
+        background: #ffffff; border-radius: 0 0 12px 12px; z-index: 1;
+    }
+    /* つぶらな黒目 */
+    .css-shiba-face::after {
+        content: "•  •"; position: absolute; top: 8px; left: 8px;
+        color: #222222; font-size: 14px; font-weight: bold; word-spacing: 4px; line-height: 1;
+    }
+    /* 三角の黒鼻 */
+    .shiba-nose {
+        position: absolute; bottom: 10px; left: 16px; width: 4px; height: 3px;
+        background: #222222; border-radius: 50%; z-index: 2;
+    }
+    /* ピンと立った耳 (左・右) */
+    .shiba-ear-l, .shiba-ear-r {
+        position: absolute; top: -6px; width: 0; height: 0;
+        border-bottom: 10px solid #e68a00; border-left: 6px solid transparent; border-right: 6px solid transparent;
+    }
+    .shiba-ear-l { left: 2px; transform: rotate(-15deg); }
+    .shiba-ear-r { right: 2px; transform: rotate(15deg); }
+
+    /* くるんと丸まった可愛い巻き尾 */
+    .shiba-tail {
+        position: absolute; bottom: -4px; right: -4px; width: 14px; height: 14px;
+        background: #e68a00; border: 2px solid #ffffff; border-radius: 50%;
     }
 
     /* --------------------------------------------------
@@ -132,22 +129,19 @@ space_shiba_hybrid_html = """
 
     .matrix-overlay-gate {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(1, 3, 10, 0.65);
-        backdrop-filter: blur(2px);
+        background: rgba(1, 3, 10, 0.65); backdrop-filter: blur(2px);
         z-index: 999999; pointer-events: none;
         animation: matrix-flash-gate 2.5s steps(25, end) forwards;
     }
     .matrix-neon-text {
-        position: absolute; top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        color: #ffffff;
-        font-family: 'Noto Serif JP', 'Georgia', serif;
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        color: #ffffff; font-family: 'Noto Serif JP', 'Georgia', serif;
         font-size: calc(22px + 1.8vw); font-weight: bold; white-space: nowrap;
         animation: matrix-text-glow 2.4s ease-in-out forwards;
     }
 
     /* --------------------------------------------------
-       サイバーUIコンポーネント（SpaceLabテーマ）
+       サイバーUIコンポーネント
     -------------------------------------------------- */
     .cyber-title-container {
         text-align: center; padding: 18px 10px; margin-bottom: 25px;
@@ -175,9 +169,7 @@ space_shiba_hybrid_html = """
     div[data-testid="stMetricValue"] { color: #00ffaa !important; font-size: 2.2rem !important; text-shadow: 0 0 10px rgba(0, 255, 170, 0.3); }
 
     .stWidgetLabel, div[data-testid="stMarkdownContainer"] p, label, .stRadio p {
-        color: #ffffff !important;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 1) !important;
-        font-weight: 600 !important;
+        color: #ffffff !important; text-shadow: 1px 1px 4px rgba(0, 0, 0, 1) !important; font-weight: 600 !important;
     }
 
     div[data-testid="stVerticalBlock"] {
@@ -187,12 +179,23 @@ space_shiba_hybrid_html = """
     .stAlert div { color: #ffffff !important; }
 </style>
 
-<div class="space-meteor"></div>
-<div class="space-meteor-2"></div>
-<div class="space-planet-orb"></div>
+<div class="meteor m1"></div>
+<div class="meteor m2"></div>
+<div class="meteor m3"></div>
+<div class="meteor m4"></div>
+<div class="meteor m5"></div>
+<div class="meteor m6"></div>
+<div class="meteor m7"></div>
 
-<div class="space-shiba-container">
-    <div class="shiba-avatar">🐕</div>
+<div class="shiba-space-box">
+    <div class="shiba-helmet-bubble">
+        <div class="css-shiba-face">
+            <div class="shiba-ear-l"></div>
+            <div class="shiba-ear-r"></div>
+            <div class="shiba-nose"></div>
+            <div class="shiba-tail"></div>
+        </div>
+    </div>
 </div>
 
 <div class="matrix-overlay-gate">
@@ -200,7 +203,7 @@ space_shiba_hybrid_html = """
 </div>
 """
 
-st.markdown(space_shiba_hybrid_html, unsafe_allow_html=True)
+st.markdown(space_max_meteors_html, unsafe_allow_html=True)
 
 # メインタイトル
 st.markdown("""
