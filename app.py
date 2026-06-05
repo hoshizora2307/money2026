@@ -6,7 +6,7 @@ import os
 # ==========================================
 # 1. 宇宙ベース(星空・流星・オービット惑星)カスタムCSS/HTML
 # ==========================================
-st.set_page_config(page_title="SpaceLab Repayment Core", page_icon="🚀", layout="centered")
+st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
 space_effects_html = """
 <style>
@@ -59,7 +59,6 @@ space_effects_html = """
         to { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
-    /* 惑星配置用の固定コンテナ */
     .solar-system {
         position: fixed;
         top: 50%;
@@ -71,7 +70,6 @@ space_effects_html = """
         opacity: 0.25;
     }
 
-    /* 中心：太陽光（バックグロー） */
     .sun-glow {
         position: absolute;
         width: 100px; height: 100px;
@@ -79,7 +77,6 @@ space_effects_html = """
         transform: translate(-50%, -50%);
     }
 
-    /* 軌道と惑星の共通定義 */
     .orbit {
         position: absolute;
         border: 1px dashed rgba(0, 255, 255, 0.15);
@@ -94,34 +91,14 @@ space_effects_html = """
         transform: translate(-50%, -50%);
     }
 
-    /* 内側惑星（地球イメージ・青） */
-    .orbit-inner {
-        width: 280px; height: 280px;
-        animation-duration: 25s;
-    }
-    .planet-inner {
-        width: 10px; height: 10px;
-        background: #00bfff;
-        box-shadow: 0 0 8px #00bfff;
-    }
+    .orbit-inner { width: 280px; height: 280px; animation-duration: 25s; }
+    .planet-inner { width: 10px; height: 10px; background: #00bfff; box-shadow: 0 0 8px #00bfff; }
 
-    /* 外側惑星（土星・環つきイメージ・オレンジ） */
-    .orbit-outer {
-        width: 520px; height: 520px;
-        animation-duration: 50s;
-    }
-    .planet-outer {
-        width: 16px; height: 16px;
-        background: #ffaa44;
-        box-shadow: 0 0 10px #ffaa44;
-    }
+    .orbit-outer { width: 520px; height: 520px; animation-duration: 50s; }
+    .planet-outer { width: 16px; height: 16px; background: #ffaa44; box-shadow: 0 0 10px #ffaa44; }
     .planet-outer::after {
-        content: "";
-        position: absolute;
-        top: 50%; left: 50%;
-        width: 26px; height: 6px;
-        border: 2px solid rgba(255, 170, 68, 0.6);
-        border-radius: 50%;
+        content: ""; position: absolute; top: 50%; left: 50%; width: 26px; height: 6px;
+        border: 2px solid rgba(255, 170, 68, 0.6); border-radius: 50%;
         transform: translate(-50%, -50%) rotate(15deg);
     }
 
@@ -137,15 +114,15 @@ space_effects_html = """
     }
     .cyber-title {
         font-family: 'Impact', 'Arial Black', sans-serif;
-        font-size: 24pt !important;
+        font-size: 22pt !important;
         color: #ffffff !important;
         text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff;
-        letter-spacing: 4px;
+        letter-spacing: 2px;
         margin: 0 !important;
     }
     .cyber-subtitle {
         font-size: 9pt; color: #ff00ff;
-        text-shadow: 0 0 4px #ff00ff; letter-spacing: 6px; margin-top: 5px;
+        text-shadow: 0 0 4px #ff00ff; letter-spacing: 4px; margin-top: 5px;
     }
     .cyber-credit {
         font-size: 8pt; color: #00ffaa;
@@ -153,8 +130,8 @@ space_effects_html = """
     }
     h3 { color: #ff00ff !important; text-shadow: 0 0 8px #ff00ff; border-left: 4px solid #ff00ff; padding-left: 10px; }
     div[data-testid="stMetricValue"] { color: #00ffaa !important; font-size: 2.3rem !important; text-shadow: 0 0 10px rgba(0, 255, 170, 0.6); }
+    div[data-testid="stMetricLabel"] { color: #8bb3ff !important; letter-spacing: 1px; }
     
-    /* コンテンツの視認性を確保するためのレイヤー調整 */
     div[data-testid="stVerticalBlock"] {
         background: rgba(4, 5, 15, 0.4);
         border-radius: 10px;
@@ -173,15 +150,15 @@ space_effects_html = """
 </div>
 
 <div class="cyber-title-container">
-    <div class="cyber-title">⚡ REPAYMENT CORE ⚡</div>
-    <div class="cyber-subtitle">SYSTEM VER 2.06 / SPICELAB NAVIGATION</div>
+    <div class="cyber-title">⚡ 返済管理コアシステム ⚡</div>
+    <div class="cyber-subtitle">SYSTEM VER 1.00 / 相互ロック制御</div>
     <div class="cyber-credit">BY HOSHIZORA2307 SOFTWARE SYSTEMS</div>
 </div>
 """
 st.markdown(space_effects_html, unsafe_allow_html=True)
 
 # ==========================================
-# 2. データ管理ロジック (構文エラー修正済)
+# 2. データ管理ロジック
 # ==========================================
 DATA_FILE = "repayment_status.json"
 
@@ -211,12 +188,12 @@ db = st.session_state.db
 # ==========================================
 col1, col2 = st.columns(2)
 with col1:
-    st.metric(label="☄️ INITIAL LOAN", value="¥701,000")
+    st.metric(label="☄️ 元金（初期借入額）", value="¥701,000")
 with col2:
-    st.metric(label="🛰️ CURRENT REMAINING", value=f"¥{db['remaining_amount']:,}")
+    st.metric(label="🛰️ 現在の借入残高", value=f"¥{db['remaining_amount']:,}")
 
 st.write("---")
-st.subheader("🛸 Current Cycle Status")
+st.subheader("🛸 今月の返済ステータス")
 
 c1, c2 = st.columns(2)
 with c1:
@@ -235,7 +212,7 @@ with c2:
 # 4. 相互コントロールパネル
 # ==========================================
 st.write("---")
-st.subheader("🎛️ Mission Control Panel")
+st.subheader("🎛️ コントロールパネル")
 
 user_role = st.radio("アクセス権限を選択してください：", ["小野田 だいち (借主)", "川端 しづ (貸主)"], horizontal=True)
 
@@ -244,7 +221,7 @@ if user_role == "小野田 だいち (借主)":
     if st.button("🚀 返済を実行した（シグナル送信）", disabled=db["daichi_paid"]):
         db["daichi_paid"] = True
         save_data(db)
-        st.success("だいちさんからの返済シグナルをロックしました。しづさんの承認を待ちます。")
+        st.success("だいちさんの返済シグナルをロックしました。しづさんの承認を待ちます。")
         st.rerun()
 
 elif user_role == "川端 しづ (貸主)":
@@ -272,9 +249,9 @@ elif user_role == "川端 しづ (貸主)":
 # 5. ログ・タイムライン履歴
 # ==========================================
 st.write("---")
-st.subheader("📜 Quantum Ledger (返済履歴)")
+st.subheader("📜 分割返済の履歴データ")
 if db["history"]:
     for record in reversed(db["history"]):
         st.code(record, language="markdown")
 else:
-    st.caption("通信記録なし（まだ承認された返済はありません）")
+    st.caption("通信記録なし（承認された返済履歴はまだありません）")
