@@ -5,7 +5,7 @@ import os
 import time
 
 # ==========================================
-# 1. オープニングアニメーション & 宇宙ベースCSS
+# 1. 宇宙ベース(高視認性サイバー)カスタムCSS/HTML
 # ==========================================
 st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
@@ -88,7 +88,7 @@ space_effects_html = f"""
         animation: shooting-star 12s linear infinite; z-index: 0; pointer-events: none;
     }}
 
-    /* タイトルエリア */
+    /* タイトルエリア（絶対1列死守・レスポンシブ対応） */
     .cyber-title-container {{
         text-align: center; padding: 15px 10px; margin-bottom: 25px;
         background: rgba(3, 4, 12, 0.85); border: 2px solid #00ffff; border-radius: 8px;
@@ -122,12 +122,7 @@ space_effects_html = f"""
         font-size: 1.05rem !important;
     }}
 
-    /* ラジオボタンが選択されていない時の白丸・テキストを見やすく */
-    div[data-testid="stRadio"] label div[data-testid="stMarkdownContainer"] {{
-        color: #ffffff !important;
-    }}
-
-    /* コンポーネント外枠 */
+    /* ウィジェット背景 */
     div[data-testid="stVerticalBlock"] {{
         background: rgba(5, 8, 22, 0.8) !important; border-radius: 10px; padding: 12px;
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -136,24 +131,29 @@ space_effects_html = f"""
 </style>
 """
 
-# セッション状態を利用して最初の一度だけ2秒のスリープを挟む
+# --- 最初の一度だけオープニング（スプラッシュ）を挟むロジック ---
 if "overlay_done" not in st.session_state:
-    # 画面全体にオープニング用HTMLレイヤーを1回射出
     st.markdown(f"""
     <div class="splash-container">
         <div class="splash-overlay"></div>
         <div class="splash-text">信頼に感謝</div>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown(space_effects_html, unsafe_allow_html=True)
-    
-    # 2.2秒待機してロード中感を演出
     time.sleep(2.2)
     st.session_state.overlay_done = True
     st.rerun()
 
-# 2回目以降（メイン画面）のレンダリング
+# --- メイン画面レンダリング（タイトルコンテナを確実にここで射出） ---
 st.markdown(space_effects_html, unsafe_allow_html=True)
+
+st.markdown("""
+<div class="cyber-title-container">
+    <div class="cyber-title">⚡ 返済管理コアシステム ⚡</div>
+    <div class="cyber-subtitle">SYSTEM VER 1.00 / 相互ロック制御</div>
+    <div class="cyber-credit">BY HOSHIZORA2307 SOFTWARE SYSTEMS</div>
+</div>
+""", unsafe_allow_html=True)
+
 
 # ==========================================
 # 2. データ管理ロジック
