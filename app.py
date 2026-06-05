@@ -4,11 +4,11 @@ import json
 import os
 
 # ==========================================
-# 1. 宇宙背景・流れ星の完全復活 ＆ 独立メッセージ演出
+# 1. 宇宙背景・スペースシバイヌ ＆ 独立メッセージ演出
 # ==========================================
 st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
-space_matrix_hybrid_html = """
+space_shiba_hybrid_html = """
 <style>
     /* --------------------------------------------------
        [完全復活] 宇宙空間・星空・流れ星の背景システム
@@ -30,7 +30,7 @@ space_matrix_hybrid_html = """
         opacity: 0.3; z-index: 0; pointer-events: none;
     }
 
-    /* 流れ星（シューティングスター）のアニメーション復活 */
+    /* 流れ星（シューティングスター）のアニメーション */
     @keyframes shooting-star {
         0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; width: 0px; }
         10% { width: 80px; opacity: 1; }
@@ -59,6 +59,63 @@ space_matrix_hybrid_html = """
     }
 
     /* --------------------------------------------------
+       [新機能] 宇宙を旅する「スペースシバイヌ」システム
+    -------------------------------------------------- */
+    @keyframes shiba-floating {
+        0% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-15px) rotate(3deg); }
+        100% { transform: translateY(0px) rotate(0deg); }
+    }
+    @keyframes shiba-spin {
+        0% { transform: rotate(0deg); }
+        85% { transform: rotate(0deg); }
+        90% { transform: rotate(360deg); } /* 時々くるんと1回転 */
+        100% { transform: rotate(360deg); }
+    }
+
+    .space-shiba-container {
+        position: fixed;
+        bottom: 40px;
+        right: 25px;
+        width: 75px;
+        height: 75px;
+        z-index: 999;
+        pointer-events: auto; /* タップで少し反応できるように */
+        animation: shiba-floating 4s ease-in-out infinite;
+    }
+
+    /* かわいい絵文字シバイヌをヘルメット（バブル）で包む */
+    .shiba-avatar {
+        width: 100%;
+        height: 100%;
+        font-size: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(0,255,255,0.05) 60%, transparent 100%);
+        border: 2px solid rgba(0, 255, 170, 0.4);
+        border-radius: 50%;
+        box-shadow: 0 0 15px rgba(0, 255, 170, 0.3), inset 0 0 10px rgba(255,255,255,0.2);
+        backdrop-filter: blur(1px);
+        position: relative;
+        animation: shiba-spin 14s ease-in-out infinite;
+    }
+
+    /* 宇宙服の無線風の吹き出し（たまに寂しくないように） */
+    .shiba-avatar::after {
+        content: "🐾";
+        position: absolute;
+        top: -10px;
+        left: -5px;
+        font-size: 16px;
+        background: rgba(4, 10, 26, 0.8);
+        border: 1px solid #00ffaa;
+        border-radius: 50%;
+        padding: 2px;
+        box-shadow: 0 0 5px #00ffaa;
+    }
+
+    /* --------------------------------------------------
        [独立制御] マトリックス風・起動メッセージ演出
     -------------------------------------------------- */
     @keyframes matrix-flash-gate {
@@ -73,10 +130,9 @@ space_matrix_hybrid_html = """
         100% { opacity: 0; filter: blur(2px); transform: translate(-50%, -50%) scale(1.05); }
     }
 
-    /* 背景を透過させ、既存の宇宙背景を隠さないスプラッシュレイヤー */
     .matrix-overlay-gate {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(1, 3, 10, 0.65); /* 宇宙背景がうっすら透ける遮光シールド */
+        background: rgba(1, 3, 10, 0.65);
         backdrop-filter: blur(2px);
         z-index: 999999; pointer-events: none;
         animation: matrix-flash-gate 2.5s steps(25, end) forwards;
@@ -124,7 +180,6 @@ space_matrix_hybrid_html = """
         font-weight: 600 !important;
     }
 
-    /* ウィジェットコンテナ（星空が透けるアクリルデザイン） */
     div[data-testid="stVerticalBlock"] {
         background: rgba(5, 12, 30, 0.75) !important; border-radius: 10px; padding: 14px;
         border: 1px solid rgba(0, 255, 170, 0.2);
@@ -136,13 +191,16 @@ space_matrix_hybrid_html = """
 <div class="space-meteor-2"></div>
 <div class="space-planet-orb"></div>
 
+<div class="space-shiba-container">
+    <div class="shiba-avatar">🐕</div>
+</div>
+
 <div class="matrix-overlay-gate">
     <div class="matrix-neon-text">信頼に感謝</div>
 </div>
 """
 
-# スタイリングと環境エフェクトのロード
-st.markdown(space_matrix_hybrid_html, unsafe_allow_html=True)
+st.markdown(space_shiba_hybrid_html, unsafe_allow_html=True)
 
 # メインタイトル
 st.markdown("""
