@@ -2,172 +2,157 @@ import streamlit as st
 import datetime
 import json
 import os
+import time
 
 # ==========================================
-# 1. 宇宙ベース(高視認性サイバー)カスタムCSS/HTML
+# 1. オープニングアニメーション & 宇宙ベースCSS
 # ==========================================
 st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
-space_effects_html = """
+# ローカルまたはGitHub上の画像ファイル名
+IMAGE_FILE = "f1293694-2ea8-4e0d-b55d-9af1a07146e5-1_all_7174.jpg"
+
+space_effects_html = f"""
 <style>
-    /* 全体の背景を深い宇宙に設定 */
-    .stApp {
+    /* --- オープニング画面（スプラッシュ）の定義 --- */
+    @keyframes fade-in-out {{
+        0% {{ opacity: 0; visibility: visible; }}
+        15% {{ opacity: 1; }}
+        85% {{ opacity: 1; }}
+        100% {{ opacity: 0; visibility: hidden; }}
+    }}
+    @keyframes text-glow {{
+        0% {{ opacity: 0; transform: translate(-50%, -40%); filter: blur(5px); }}
+        30% {{ opacity: 1; transform: translate(-50%, -50%); filter: blur(0px); text-shadow: 0 0 10px #ffffff, 0 0 20px #ff00ff; }}
+        100% {{ opacity: 1; transform: translate(-50%, -50%); text-shadow: 0 0 15px #ffffff, 0 0 30px #ff00ff; }}
+    }}
+
+    .splash-container {{
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: #030308;
+        background-image: url('{IMAGE_FILE}');
+        background-size: cover;
+        background-position: center;
+        z-index: 99999;
+        animation: fade-in-out 2.5s ease-in-out forwards;
+        pointer-events: none;
+    }}
+    .splash-overlay {{
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle, rgba(3,3,8,0.2) 0%, rgba(3,3,8,0.7) 100%);
+    }}
+    .splash-text {{
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        color: #ffffff;
+        font-family: 'Noto Serif JP', 'Georgia', serif;
+        font-size: calc(20px + 2vw);
+        font-weight: bold;
+        letter-spacing: 8px;
+        white-space: nowrap;
+        animation: text-glow 2s ease-out forwards;
+    }}
+
+    /* --- メイン宇宙背景と全体のデザイン調整 --- */
+    .stApp {{
         background: radial-gradient(ellipse at bottom, #070b19 0%, #020205 100%) !important;
         color: #ffffff !important;
         font-family: 'Courier New', Courier, monospace;
         overflow-x: hidden;
-    }
+    }}
 
-    /* 星空レイヤー（少し暗めにして文字を邪魔しないように調整） */
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
+    /* 星空背景 */
+    .stApp::before {{
+        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             radial-gradient(white, rgba(255,255,255,.2) 1.5px, transparent 40px),
             radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
-        background-size: 450px 450px, 250px 250px;
-        background-position: 0 0, 40px 60px;
-        opacity: 0.25;
-        z-index: 0;
-        pointer-events: none;
-    }
+        background-size: 450px 450px, 250px 250px; background-position: 0 0, 40px 60px;
+        opacity: 0.25; z-index: 0; pointer-events: none;
+    }}
 
-    /* 流れ星のアニメーション */
-    @keyframes shooting-star {
-        0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 0; }
-        5% { opacity: 1; transform: translateX(-100px) translateY(100px) rotate(-45deg) scale(1); }
-        15% { transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(0); opacity: 0; }
-        100% { transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(0); opacity: 0; }
-    }
-    .stApp::after {
-        content: "";
-        position: fixed;
-        top: 15%; right: -10%; width: 140px; height: 2px;
+    /* 流れ星 */
+    @keyframes shooting-star {{
+        0% {{ transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 0; }}
+        5% {{ opacity: 1; transform: translateX(-100px) translateY(100px) rotate(-45deg) scale(1); }}
+        15% {{ transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(0); opacity: 0; }}
+        100% {{ transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(0); opacity: 0; }}
+    }}
+    .stApp::after {{
+        content: ""; position: fixed; top: 15%; right: -10%; width: 140px; height: 2px;
         background: linear-gradient(-45deg, #00ffff, rgba(0, 0, 0, 0));
-        filter: drop-shadow(0 0 6px #00ffff);
-        opacity: 0;
-        animation: shooting-star 12s linear infinite;
-        z-index: 0;
-        pointer-events: none;
-    }
+        filter: drop-shadow(0 0 6px #00ffff); opacity: 0;
+        animation: shooting-star 12s linear infinite; z-index: 0; pointer-events: none;
+    }}
 
-    /* --- 太陽系惑星オービットシステム --- */
-    @keyframes orbit-rotate {
-        from { transform: translate(-50%, -50%) rotate(0deg); }
-        to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    .solar-system {
-        position: fixed;
-        top: 50%; left: 50%; width: 0px; height: 0px;
-        z-index: 0; pointer-events: none; opacity: 0.15;
-    }
-    .sun-glow {
-        position: absolute;
-        width: 100px; height: 100px;
-        background: radial-gradient(circle, rgba(255,150,0,0.3) 0%, transparent 70%);
-        transform: translate(-50%, -50%);
-    }
-    .orbit {
-        position: absolute;
-        border: 1px dashed rgba(0, 255, 255, 0.15);
-        border-radius: 50%;
-        animation: orbit-rotate linear infinite;
-    }
-    .planet { position: absolute; top: 0; left: 50%; border-radius: 50%; transform: translate(-50%, -50%); }
-    .orbit-inner { width: 280px; height: 280px; animation-duration: 25s; }
-    .planet-inner { width: 10px; height: 10px; background: #00bfff; box-shadow: 0 0 8px #00bfff; }
-    .orbit-outer { width: 520px; height: 520px; animation-duration: 50s; }
-    .planet-outer { width: 16px; height: 16px; background: #ffaa44; box-shadow: 0 0 10px #ffaa44; }
-
-    /* --- 【重要】視認性最優先のUI調整 --- */
-    
-    /* タイトルコンテナ */
-    .cyber-title-container {
-        text-align: center;
-        padding: 15px 10px;
-        margin-bottom: 25px;
-        background: rgba(3, 4, 12, 0.85);
-        border: 2px solid #00ffff;
-        border-radius: 8px;
+    /* タイトルエリア */
+    .cyber-title-container {{
+        text-align: center; padding: 15px 10px; margin-bottom: 25px;
+        background: rgba(3, 4, 12, 0.85); border: 2px solid #00ffff; border-radius: 8px;
         box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 15px rgba(0, 255, 255, 0.2);
-    }
-    .cyber-title {
+    }}
+    .cyber-title {{
         font-family: 'Impact', 'Arial Black', sans-serif;
-        font-size: calc(14px + 2.2vw) !important;
-        color: #ffffff !important;
-        text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
-        letter-spacing: 1px;
-        margin: 0 !important;
-        white-space: nowrap;
-    }
-    .cyber-subtitle {
-        font-size: calc(9px + 0.5vw); color: #ff00ff;
-        text-shadow: 0 0 4px #ff00ff; letter-spacing: 2px; margin-top: 8px;
-        white-space: nowrap;
-    }
-    .cyber-credit {
-        font-size: calc(8px + 0.3vw); color: #00ffaa;
-        text-shadow: 0 0 3px #00ffaa; letter-spacing: 1px; margin-top: 10px;
-        white-space: nowrap;
-    }
+        font-size: calc(14px + 2.2vw) !important; color: #ffffff !important;
+        text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; letter-spacing: 1px; margin: 0 !important; white-space: nowrap;
+    }}
+    .cyber-subtitle {{
+        font-size: calc(9px + 0.5vw); color: #ff00ff; text-shadow: 0 0 4px #ff00ff; letter-spacing: 2px; margin-top: 8px; white-space: nowrap;
+    }}
+    .cyber-credit {{
+        font-size: calc(8px + 0.3vw); color: #00ffaa; text-shadow: 0 0 3px #00ffaa; letter-spacing: 1px; margin-top: 10px; white-space: nowrap;
+    }}
 
-    /* セクションヘッダー(紫ネオン) */
-    h3 {
-        color: #ff55ff !important;
-        text-shadow: 0 0 8px #ff55ff;
-        border-left: 4px solid #ff55ff;
-        padding-left: 10px;
-        font-size: calc(16px + 1vw) !important;
-        white-space: nowrap;
-    }
+    h3 {{
+        color: #ff55ff !important; text-shadow: 0 0 8px #ff55ff; border-left: 4px solid #ff55ff;
+        padding-left: 10px; font-size: calc(16px + 1vw) !important; white-space: nowrap;
+    }}
     
-    /* メトリクス（数値表示）のラベルを明るい白ベースに変更して視認性確保 */
-    div[data-testid="stMetricLabel"] {
-        color: #ffffff !important;
-        font-weight: bold !important;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.9) !important;
-        font-size: 1rem !important;
-    }
-    div[data-testid="stMetricValue"] {
-        color: #00ffaa !important;
-        font-size: 2.3rem !important;
-        text-shadow: 0 0 10px rgba(0, 255, 170, 0.6);
-    }
+    div[data-testid="stMetricLabel"] {{ color: #ffffff !important; font-weight: bold !important; text-shadow: 1px 1px 3px rgba(0,0,0,0.9) !important; }}
+    div[data-testid="stMetricValue"] {{ color: #00ffaa !important; font-size: 2.3rem !important; text-shadow: 0 0 10px rgba(0, 255, 170, 0.6); }}
 
-    /* ラジオボタン・テキストラベルの文字色を「絶対的な白」に強制 */
-    .stWidgetLabel, div[data-testid="stMarkdownContainer"] p, label {
+    /* --- ラジオボタンと文字の視認性改善 --- */
+    .stWidgetLabel, div[data-testid="stMarkdownContainer"] p, label, .stRadio p {{
         color: #ffffff !important;
         text-shadow: 1px 1px 4px rgba(0, 0, 0, 1), 0 0 2px rgba(0, 0, 0, 1) !important;
-        font-weight: 500 !important;
-    }
+        font-weight: 600 !important;
+        font-size: 1.05rem !important;
+    }}
 
-    /* ウィジェット全体の背景を少し暗くして文字を浮かび上がらせる */
-    div[data-testid="stVerticalBlock"] {
-        background: rgba(5, 8, 22, 0.75) !important;
-        border-radius: 10px;
-        padding: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    /* インフォメーションボックスの文字も見やすく調整 */
-    .stAlert div {
+    /* ラジオボタンが選択されていない時の白丸・テキストを見やすく */
+    div[data-testid="stRadio"] label div[data-testid="stMarkdownContainer"] {{
         color: #ffffff !important;
-    }
+    }}
+
+    /* コンポーネント外枠 */
+    div[data-testid="stVerticalBlock"] {{
+        background: rgba(5, 8, 22, 0.8) !important; border-radius: 10px; padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }}
+    .stAlert div {{ color: #ffffff !important; }}
 </style>
-
-<div class="solar-system">
-    <div class="sun-glow"></div>
-    <div class="orbit orbit-inner"><div class="planet planet-inner"></div></div>
-    <div class="orbit orbit-outer"><div class="planet planet-outer"></div></div>
-</div>
-
-<div class="cyber-title-container">
-    <div class="cyber-title">⚡ 返済管理コアシステム ⚡</div>
-    <div class="cyber-subtitle">SYSTEM VER 1.00 / 相互ロック制御</div>
-    <div class="cyber-credit">BY HOSHIZORA2307 SOFTWARE SYSTEMS</div>
-</div>
 """
+
+# セッション状態を利用して最初の一度だけ2秒のスリープを挟む
+if "overlay_done" not in st.session_state:
+    # 画面全体にオープニング用HTMLレイヤーを1回射出
+    st.markdown(f"""
+    <div class="splash-container">
+        <div class="splash-overlay"></div>
+        <div class="splash-text">信頼に感謝</div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown(space_effects_html, unsafe_allow_html=True)
+    
+    # 2.2秒待機してロード中感を演出
+    time.sleep(2.2)
+    st.session_state.overlay_done = True
+    st.rerun()
+
+# 2回目以降（メイン画面）のレンダリング
 st.markdown(space_effects_html, unsafe_allow_html=True)
 
 # ==========================================
