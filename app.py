@@ -4,40 +4,63 @@ import json
 import os
 
 # ==========================================
-# 1. 完全ブラウザ制御・マトリックス起動システム（高視認性）
+# 1. 100% CSS制御・サイバーマトリックス起動システム
 # ==========================================
 st.set_page_config(page_title="返済管理システム Core", page_icon="🚀", layout="centered")
 
-# CSS / JavaScript 一体型埋め込み（Python側でのスリープやrerunを排除）
-matrix_boot_html = """
+matrix_pure_css_html = """
 <style>
-    /* --- マトリックス風スプラッシュ画面の設定 --- */
-    #matrix-splash-container {
+    /* --- マトリックス風スプラッシュ画面（CSSネイティブ制御） --- */
+    @keyframes matrix-fade-out {
+        0% { opacity: 1; visibility: visible; }
+        85% { opacity: 1; visibility: visible; }
+        100% { opacity: 0; visibility: hidden; }
+    }
+    @keyframes code-rain {
+        0% { background-position: 0% 0%, 50% 0%; }
+        100% { background-position: 0% 100%, 50% 200%; }
+    }
+    @keyframes text-glow-pulse {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); filter: blur(4px); }
+        20% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41; }
+        80% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); text-shadow: 0 0 15px #00ff41, 0 0 30px #00ff41; }
+        100% { opacity: 0; filter: blur(2px); }
+    }
+
+    #matrix-pure-splash {
         position: fixed;
         top: 0; left: 0; width: 100vw; height: 100vh;
         background-color: #000000;
+        /* デジタルコード雨を模したグリッド＆ストライプ背景 */
+        background-image: 
+            linear-gradient(rgba(0, 255, 65, 0.1) 2px, transparent 2px),
+            linear-gradient(90deg, rgba(0, 255, 65, 0.15) 1px, transparent 1px);
+        background-size: 100% 24px, 18px 100%;
         z-index: 999999;
-        overflow: hidden;
-        transition: opacity 0.6s ease-in-out, visibility 0.6s;
+        pointer-events: none;
+        animation: matrix-fade-out 2.3s steps(30, end) forwards;
     }
-    #matrixCanvas {
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        opacity: 0.6;
+    
+    /* 動的にコードが降っているように見せるオーバーレイ */
+    #matrix-pure-splash::before {
+        content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(180deg, transparent 0%, rgba(0,255,65,0.2) 50%, transparent 100%);
+        background-size: 100% 400px;
+        animation: code-rain 1.5s linear infinite;
     }
-    .matrix-text {
+
+    .matrix-css-text {
         position: absolute;
         top: 50%; left: 50%;
-        transform: translate(-50%, -50%) scale(0.95);
+        transform: translate(-50%, -50%);
         color: #ffffff;
         font-family: 'Noto Serif JP', 'Georgia', serif;
-        font-size: calc(22px + 2vw);
+        font-size: calc(20px + 2vw);
         font-weight: bold;
         letter-spacing: 6px;
         white-space: nowrap;
-        text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41;
-        opacity: 0;
-        transition: all 0.5s ease-out;
+        z-index: 1000000;
+        animation: text-glow-pulse 2.2s ease-in-out forwards;
     }
 
     /* --- メイン画面のベースデザイン --- */
@@ -97,74 +120,15 @@ matrix_boot_html = """
     .stAlert div { color: #ffffff !important; }
 </style>
 
-<div id="matrix-splash-container">
-    <canvas id="matrixCanvas"></canvas>
-    <div id="splash-msg" class="matrix-text">信頼に感謝</div>
+<div id="matrix-pure-splash">
+    <div class="matrix-css-text">信頼に感謝</div>
 </div>
-
-<script>
-    (function() {
-        const container = document.getElementById('matrix-splash-container');
-        const canvas = document.getElementById('matrixCanvas');
-        const msg = document.getElementById('splash-msg');
-        
-        // すでにセッション内で閲覧済みの場合はオープニングをスキップ
-        if (sessionStorage.getItem('matrix_auth_done')) {
-            container.style.display = 'none';
-            return;
-        }
-
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const katakana = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const alphabet = katakana.split("");
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const rainDrops = Array(Math.floor(columns)).fill(1);
-
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#00ff41';
-            ctx.font = fontSize + 'px monospace';
-
-            for (let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet[Math.floor(Math.random() * alphabet.length)];
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
-        }
-
-        const matrixInterval = setInterval(drawMatrix, 30);
-
-        // 0.3秒後にメッセージをフェードイン＆拡張
-        setTimeout(() => {
-            msg.style.opacity = '1';
-            msg.style.transform = 'translate(-50%, -50%) scale(1.05)';
-            msg.style.letterSpacing = '10px';
-        }, 300);
-
-        // 2.2秒後にスプラッシュ全体をシャットダウン
-        setTimeout(() => {
-            clearInterval(matrixInterval);
-            container.style.opacity = '0';
-            container.style.visibility = 'hidden';
-            sessionStorage.setItem('matrix_auth_done', 'true');
-            setTimeout(() => { container.style.display = 'none'; }, 600);
-        }, 2200);
-    })();
-</script>
 """
 
-# HTML/JSコードを最上部で1回だけ確実に射出
-st.markdown(matrix_boot_html, unsafe_allow_html=True)
+# スプラッシュHTMLを射出
+st.markdown(matrix_pure_css_html, unsafe_allow_html=True)
 
-# メインのタイトルヘッダー
+# メインタイトルヘッダー
 st.markdown("""
 <div class="cyber-title-container">
     <div class="cyber-title">⚡ 返済管理コアシステム ⚡</div>
